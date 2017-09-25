@@ -40,36 +40,50 @@
             {
                 var guid   = (new Date).getTime();
                 var action = settings.imageUploadURL + (settings.imageUploadURL.indexOf("?") >= 0 ? "&" : "?") + "guid=" + guid;
-
+                
                 if (settings.crossDomainUpload)
                 {
                     action += "&callback=" + settings.uploadCallbackURL + "&dialog_id=editormd-image-dialog-" + guid;
                 }
-
-                var dialogContent = ( (settings.imageUpload) ? "<form action=\"" + action +"\" target=\"" + iframeName + "\" method=\"post\" enctype=\"multipart/form-data\" class=\"" + classPrefix + "form\">" : "<div class=\"" + classPrefix + "form\">" ) +
-                                        ( (settings.imageUpload) ? "<iframe name=\"" + iframeName + "\" id=\"" + iframeName + "\" guid=\"" + guid + "\"></iframe>" : "" ) +
-                                        "<label>" + imageLang.url + "</label>" +
-                                        "<input type=\"text\" data-url />" + (function(){
-                                            return (settings.imageUpload) ? "<div class=\"" + classPrefix + "file-input\">" +
-                                                                                "<input type=\"file\" name=\"" + classPrefix + "image-file\" accept=\"image/*\" />" +
-                                                                                "<input type=\"submit\" value=\"" + imageLang.uploadButton + "\" />" +
-                                                                            "</div>" : "";
-                                        })() +
-                                        "<br/>" +
-                                        "<label>" + imageLang.alt + "</label>" +
-                                        "<input type=\"text\" value=\"" + selection + "\" data-alt />" +
-                                        "<br/>" +
-                                        "<label>" + imageLang.link + "</label>" +
-                                        "<input type=\"text\" value=\"http://\" data-link />" +
-                                        "<br/>" +
-                                    ( (settings.imageUpload) ? "</form>" : "</div>");
-
-                //var imageFooterHTML = "<button class=\"" + classPrefix + "btn " + classPrefix + "image-manager-btn\" style=\"float:left;\">" + imageLang.managerButton + "</button>";
+                if (settings.imageUpload) 
+                {
+                    var dialogContent = ( (settings.imageUpload) ? "<form action=\"" + action +"\" target=\"" + iframeName + "\" method=\"post\" enctype=\"multipart/form-data\" class=\"" + classPrefix + "form\">" : "<div class=\"" + classPrefix + "form\">" ) +
+                    ( (settings.imageUpload) ? "<iframe name=\"" + iframeName + "\" id=\"" + iframeName + "\" guid=\"" + guid + "\"></iframe>" : "" ) +
+                    "<label>" + imageLang.url + "</label>" +
+                    "<input type=\"text\" data-url />" + (function(){
+                        return (settings.imageUpload) ? "<div class=\"" + classPrefix + "file-input\">" +
+                                                            "<input type=\"file\" name=\"image\" accept=\"image/*\" />" +
+                                                            "<input type=\"submit\" value=\"" + imageLang.uploadButton + "\" />" +
+                                                        "</div>" : "";
+                    })() +
+                    "<br/>" +
+                    "<label>" + imageLang.alt + "</label>" +
+                    "<input type=\"text\" value=\"" + selection + "\" data-alt />" +
+                    "<br/>" +
+                    "<label>" + imageLang.link + "</label>" +
+                    "<input type=\"text\" value=\"http://\" data-link />" +
+                    "<br/>" +
+                ( (settings.imageUpload) ? "</form>" : "</div>");
+                } else {
+                    var dialogContent = 
+                    '<div class="input-field">' +
+                    '<label>' + imageLang.url + '</label>' +
+                    '<input type="text" data-url />'+'</div>' + 
+                    '<div class="input-field">' +
+                    '<label>' + imageLang.alt + '</label>' +
+                    '<input type="text" value="' + selection + '" data-alt />' +
+                    '</div>' + 
+                    '<div class="input-field">' +
+                    '<label class="active">' + imageLang.link + '</label>' +
+                    '<input type="text" value="https://" data-link />' +
+                    '</div>'
+                }
+                //var imageFooterHTML = '<button class="' + classPrefix + "btn " + classPrefix + "image-manager-btn" style="float:left;">' + imageLang.managerButton + '</button>';
 
                 dialog = this.createDialog({
                     title      : imageLang.title,
-                    width      : (settings.imageUpload) ? 465 : 380,
-                    height     : 254,
+                    width      : (settings.imageUpload) ? 500 : 380,
+                    height     : (settings.imageUpload) ? 400 : 380,
                     name       : dialogName,
                     content    : dialogContent,
                     mask       : settings.dialogShowMask,
@@ -125,7 +139,7 @@
                     return ;
                 }
 
-				var fileInput  = dialog.find("[name=\"" + classPrefix + "image-file\"]");
+				var fileInput  = dialog.find('[name="image"]');
 
 				fileInput.bind("change", function() {
 					var fileName  = fileInput.val();
@@ -156,10 +170,10 @@
                             loading(false);
 
                             var body = (uploadIframe.contentWindow ? uploadIframe.contentWindow : uploadIframe.contentDocument).document.body;
+                            console.log(body)                            
                             var json = (body.innerText) ? body.innerText : ( (body.textContent) ? body.textContent : null);
-
+                            console.log(json)                            
                             json = (typeof JSON.parse !== "undefined") ? JSON.parse(json) : eval("(" + json + ")");
-
                             if(!settings.crossDomainUpload)
                             {
                               if (json.success === 1)
